@@ -1,32 +1,67 @@
 import React from 'react'
 import { FiChevronRight } from 'react-icons/fi';
 
+import { api } from '../../services/api';
 import { Title, Form, Repos } from './styles';
 import logo from '../../assets/logo.svg';
 
+interface GithubRepository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  }
+}
+
 export const Dashboard: React.FC = () => {
+  const [repos, setRepos] = React.useState<GithubRepository[]>([]);
+  const [newRepo, setNewRepo] = React.useState('');
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    setNewRepo(event.target.value);
+  }
+
+  async function handleAddRepo(
+    event: React.FormEvent<HTMLFormElement>,
+    ): Promise<void> {
+      event.preventDefault();
+      //agora escrevemos o que o método irá fazer, que é adicionar o repositório consumindo a api
+      const response = await api.get<GithubRepository>(`repos/${newRepo}`);
+
+      const repository = response.data;
+
+      setRepos([...repos, repository]);
+      setNewRepo('');
+    }
+
   return (
     <>
     <img src={logo} alt="GitCollection" />
     <Title>Catálogo de repoistórios do GitHub</Title>  
 
-    <Form>
-      <input placeholder='username/repository_name' />
+    <Form onSubmit={handleAddRepo}>
+      <input 
+        placeholder='username/repository_name' 
+        onChange={handleInputChange} 
+      />
       <button type='submit'>Buscar</button>
     </Form>  
 
     <Repos>
-      <a href='/repositories'>
+      {repos.map(repository => (
+        <a href='/repositories' key={repository.full_name}>
         <img 
-          src='https://avatars.githubusercontent.com/u/91629397?s=400&u=986bac27fe0728f29d922ab8f6d95a42f1dcbb2a&v=4' 
-          alt='Repositório' 
+          src={repository.owner.avatar_url} 
+          alt={repository.owner.login} 
         />
         <div>
-          <strong>luizsaulo/git-collection</strong>
-          <p>Repositório do projeto GitCollection</p>
+          <strong>{repository.full_name}</strong>
+          <p>{repository.description}</p>
         </div>
         <FiChevronRight size={20} />
       </a>
+      ))}
     </Repos>
     </>
   )
