@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useRouteMatch } from 'react-router-dom';
 import { FiChevronLeft } from 'react-icons/fi';
 
-import { Header } from './styles';
+import { Header, RepoInfo } from './styles';
 import logo from '../../assets/logo.svg';
 
 interface RepositoryParams {
@@ -21,6 +21,30 @@ export const Repo: React.FC = () => {
           Voltar
         </Link>
       </Header>
+
+      <RepoInfo>
+        <header>
+          <img src='' alt='Luiz Saulo' />
+          <div>
+            <strong>luizsaulo/filmaria</strong>
+            <p>Primeiro projeto desenvolvido em Reactjs</p>
+          </div>
+        </header>
+        <ul>
+          <li>
+            <strong>2330</strong>
+            <span>Stars</span>
+          </li>
+          <li>
+          <strong>2</strong>
+            <span>Forks</span>
+          </li>
+          <li>
+          <strong>0</strong>
+            <span>Issues Abertas</span>
+          </li>
+        </ul>
+      </RepoInfo>
     </>
   )
 };
