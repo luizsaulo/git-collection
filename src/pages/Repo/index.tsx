@@ -10,17 +10,40 @@ interface RepositoryParams {
   repository: string;
 }
 
+interface GithubRepository {
+  full_name: string;
+  description: string;
+  forks_count: number;
+  open_issues_count: number;
+  stargazers_count: number;
+  owner: {
+    login: string;
+    avatar_url: string;
+  }
+}
+
+interface GithubIssue {
+  id: number;
+  title: string;
+  html_url: string;
+  user: {
+    login: string;
+  };
+}
+
 export const Repo: React.FC = () => {
+  const [repository, setRepository] = React.useState<GithubRepository | null>(null);
+  const [issues, setIssues] = React.useState<GithubIssue[]>([]);
   const { params } = useRouteMatch<RepositoryParams>();
 
   React.useEffect(() => {
     api
     .get(`repos/${params.repository}`)
-    .then(response => console.log(response.data))
+    .then(response => setRepository(response.data))
 
     api
     .get(`repos/${params.repository}/issues`)
-    .then(response => console.log(response.data))
+    .then(response => setIssues(response.data))
   }, [params.repository]);
 
   return (
@@ -33,39 +56,43 @@ export const Repo: React.FC = () => {
         </Link>
       </Header>
 
-      <RepoInfo>
+      {repository && (
+        <RepoInfo>
         <header>
-          <img src='' alt='Luiz Saulo' />
+          <img src={repository.owner.avatar_url} alt={repository.owner.login} />
           <div>
-            <strong>luizsaulo/filmaria</strong>
-            <p>Primeiro projeto desenvolvido em Reactjs</p>
+            <strong>{repository.full_name}</strong>
+            <p>{repository.description}</p>
           </div>
         </header>
         <ul>
           <li>
-            <strong>2330</strong>
+            <strong>{repository.stargazers_count}</strong>
             <span>Stars</span>
           </li>
           <li>
-          <strong>2</strong>
+          <strong>{repository.forks_count}</strong>
             <span>Forks</span>
           </li>
           <li>
-          <strong>0</strong>
+          <strong>{repository.open_issues_count}</strong>
             <span>Issues Abertas</span>
           </li>
         </ul>
       </RepoInfo>
+      )}
 
       <Issues>
-        <Link to='/'>
+        {issues.map(issue => (
+          <a href={issue.html_url} key={issue.id}>
           <div>
-            <strong>Issue tal</strong>
-            <p>descrição do issue</p>
+            <strong>{issue.title}</strong>
+            <p>{issue.user.login}</p>
           </div>
 
           <FiChevronRight size={20} />
-        </Link>
+        </a>
+        ))}
       </Issues>
     </>
   )
